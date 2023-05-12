@@ -1,0 +1,16 @@
+# Mac system files
+.DS_Store
+
+# byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# environments
+.env
+env/
+
+# scraping outputs
+output.json
+output*.json
+*.zip
