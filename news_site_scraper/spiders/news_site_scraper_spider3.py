@@ -4,18 +4,21 @@ import scrapy
 import os
 
 load_dotenv()
-API_KEY = os.environ.get("API_KEY")
+PROXY_URL = os.environ["PROXY_URL"]
+API_KEY = os.environ["API_KEY"]
+
+DOMAIN_NAME = 'https://www.malaysianow.com'
 
 def get_proxy_url(url):
     payload = {'api_key': API_KEY, 'url': url}
-    proxy_url = 'https://proxy.scrapeops.io/v1/?' + urlencode(payload)
+    proxy_url = PROXY_URL + '?' + urlencode(payload)
     return proxy_url
 
 class NewsSiteScraperSpider3(scrapy.Spider):
     name = 'newssitescraperspider3'
 
     def start_requests(self):
-        start_url = 'https://www.malaysianow.com/search?query=ramadan+bazaar'
+        start_url = DOMAIN_NAME + '/search?query=ramadan+bazaar'
         yield scrapy.Request(url=get_proxy_url(start_url), callback=self.parse)
 
     def parse(self, response):

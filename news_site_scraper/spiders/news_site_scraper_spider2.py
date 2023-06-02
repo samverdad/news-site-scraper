@@ -4,18 +4,21 @@ import scrapy
 import os
 
 load_dotenv()
-API_KEY = os.environ.get("API_KEY")
+PROXY_URL = os.environ["PROXY_URL"]
+API_KEY = os.environ["API_KEY"]
+
+DOMAIN_NAME = 'https://www.malaymail.com'
 
 def get_proxy_url(url):
     payload = {'api_key': API_KEY, 'url': url}
-    proxy_url = 'https://proxy.scrapeops.io/v1/?' + urlencode(payload)
+    proxy_url = PROXY_URL + '?' + urlencode(payload)
     return proxy_url
 
 class NewsSiteScraperSpider2(scrapy.Spider):
     name = 'newssitescraperspider2'
 
     def start_requests(self):
-        start_url = 'https://www.malaymail.com/search?query=ramadan+bazaar'
+        start_url = DOMAIN_NAME + '/search?query=ramadan+bazaar'
         yield scrapy.Request(url=get_proxy_url(start_url), callback=self.parse)
 
     def parse(self, response):
@@ -32,9 +35,14 @@ class NewsSiteScraperSpider2(scrapy.Spider):
         yield response
 
     def scrape(self, response, url):
+        # remove 'By' and trailing spaces from `author`
+        author_data = response.css('div.article-byline::text').getall()
+        author = [s.strip().replace('By', '') for s in author_data]
+        author = ', '.join(author)
+
         yield {
             'title': response.css('h1.article-title::text').get(),
-            'author': response.css('div.article-byline::text').getall(), # to improve by removing 'By' and trailing spaces
+            'author': author,
             'location': '',
             'datetime': response.css('div.article-date::text').get(),
             'content': response.css('div.article-body p::text').getall(),
